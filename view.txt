@@ -1,0 +1,5 @@
+results for list memorization
+
+
+memorizing a small list of ints took 923 milliseconds
+
