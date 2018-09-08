@@ -8,33 +8,32 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-buildscript {
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+/**
+ * @author Nikolaus Knop
+ */
+
+package memento
+
+import memento.impl.Serializer
+import java.io.InputStream
+import java.io.OutputStream
+
+/**
+ * A preferably small backup for an object
+*/
+interface Memento {
+    /**
+     * Writes this [Memento] to [output]
+     * @throws [MementoSerializationException] when an IO exception occurs during reading
+    */
+    fun writeTo(output: OutputStream)
+
+    companion object {
+        /**
+         * Reads a [Memento] from [input] which has been serialized with [writeTo] before
+         * @throws [WrongDataFormatException] when the data from [input] is in the wrong format
+         * @throws [MementoDeserializationException] when an IO exception occurs during reading
+        */
+        fun readFrom(input: InputStream): Memento = Serializer.readMemento(input)
     }
-}
-
-plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.2.61'
-}
-
-group 'nikok'
-version '1.0-SNAPSHOT'
-
-apply plugin: 'org.junit.platform.gradle.plugin'
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
-
-targetCompatibility = JavaVersion.VERSION_1_8
-
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.61"
-    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
-    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
-    testCompile 'com.natpryce:hamkrest:1.6.0.0'
-    testCompile 'nikok:kprofile:1.0.0'
 }

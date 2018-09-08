@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="KProfile">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../KProfile/out/artifacts/KProfile_jar/KProfile.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

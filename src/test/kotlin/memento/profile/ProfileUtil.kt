@@ -8,33 +8,43 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-buildscript {
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+/**
+ * @author Nikolaus Knop
+ */
+
+package memento.profile
+
+import memento.Memento
+import memento.Memorizer
+import nikok.kprofile.api.ProfileBody
+import java.nio.file.Files
+import java.nio.file.Files.*
+import java.nio.file.Path
+
+fun ProfileBody.memorizing(memorizer: Memorizer, description: String, creator: () -> Any) {
+    val instance = creator.invoke()
+    profile("memorizing $description") {
+        memorizer.memorize(instance)
     }
 }
 
-plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.2.61'
+fun ProfileBody.serializing(description: String, path: Path, mementoCreator: () -> Memento) {
+    val memento = mementoCreator.invoke()
+    if (!exists(path)) createFile(path)
+    val os = newOutputStream(path)
+    profile("serializing $description") {
+        memento.writeTo(os)
+    }
+    delete(path)
 }
 
-group 'nikok'
-version '1.0-SNAPSHOT'
-
-apply plugin: 'org.junit.platform.gradle.plugin'
-
-repositories {
-    mavenCentral()
-    mavenLocal()
+fun ProfileBody.serializing(description: String, path: Path, memorizer: Memorizer, objectCreator: () -> Any) {
+    this.serializing(description, path) { memorizer.memorize(objectCreator.invoke()) }
 }
 
-targetCompatibility = JavaVersion.VERSION_1_8
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.61"
-    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
-    testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
-    testCompile 'com.natpryce:hamkrest:1.6.0.0'
-    testCompile 'nikok:kprofile:1.0.0'
+
+internal fun withMemorizer(memorizer: Memorizer, actions: MemorizerContext.() -> Unit) {
+    val ctx = MemorizerContext(memorizer)
+    ctx.actions()
 }
