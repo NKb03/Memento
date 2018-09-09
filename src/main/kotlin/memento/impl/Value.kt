@@ -63,7 +63,8 @@ internal sealed class Value<T> {
             get() = Serializer.STRING
     }
 
-    data class ArrayValue(override val value: Array<Value<Any?>>) : Value<Array<Value<Any?>>>() {
+    data class ArrayValue(override val value: Pair<Array<Value<Any?>>, Class<*>>)
+        : Value<Pair<Array<Value<Any?>>, Class<*>>>() {
         override val serializer
             get() = Serializer.ARRAY
 
@@ -72,14 +73,14 @@ internal sealed class Value<T> {
             if (javaClass != other?.javaClass) return false
 
             other as ArrayValue
-
-            if (!Arrays.equals(value, other.value)) return false
+            val (arr, _) = value
+            if (!Arrays.equals(arr, other.value.first)) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return Arrays.hashCode(value)
+            return Arrays.hashCode(value.first)
         }
     }
 
@@ -286,7 +287,11 @@ internal sealed class Value<T> {
                 is LongArray -> LongArrayValue(value)
                 is FloatArray -> FloatArrayValue(value)
                 is DoubleArray -> DoubleArrayValue(value)
-                is Array<*> -> ArrayValue(value.mapToArray { Value.of(it, memorizer) } as Array<Value<Any?>>)
+                is Array<*> -> {
+                    val values = value.mapToArray { Value.of(it, memorizer) }
+                    val componentType = value::class.java.componentType
+                    ArrayValue(values as Array<Value<Any?>> to componentType)
+                }
                 is Enum<*> -> EnumValue(value)
                 else -> MementoValue(memorizer.memorize(value) as MementoImpl)
             }

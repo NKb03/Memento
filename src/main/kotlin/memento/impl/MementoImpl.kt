@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
  * A Memento represents an object that stores only the information of an object to be able to reconstruct it
 */
 internal class MementoImpl(
-    val cls: KClass<Any>,
+    val cls: KClass<out Any>,
     val properties: List<Value<Any?>>
 ) : Memento {
     override fun toString(): String {

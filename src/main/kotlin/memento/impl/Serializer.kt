@@ -140,22 +140,25 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
         }
     }
 
-    object ARRAY : Serializer<Array<Value<Any?>>>(10) {
-        override fun doWriteValue(value: Array<Value<Any?>>, out: DataOutput) {
-            out.writeShort(value.size)
-            for (e in value) {
+    object ARRAY : Serializer<Pair<Array<Value<Any?>>, Class<*>>>(10) {
+        override fun doWriteValue(value: Pair<Array<Value<Any?>>, Class<*>>, out: DataOutput) {
+            val (arr, componentCls) = value
+            out.writeClass(componentCls)
+            out.writeShort(arr.size)
+            for (e in arr) {
                 write(out, e)
             }
         }
 
         @Suppress("UNCHECKED_CAST")
         override fun readValue(input: DataInput): ArrayValue {
+            val componentCls = input.readClass()
             val size = input.readShort().toInt()
-            val arr = java.lang.reflect.Array.newInstance(Value::class.java, size) as Array<Value<Any?>>
+            val arr = arrayOfNulls<Value<*>>(size) as Array<Value<Any?>>
             repeat(size) { i ->
                 arr[i] = read(input)
             }
-            return ArrayValue(arr)
+            return ArrayValue(arr to componentCls)
         }
     }
 
@@ -284,15 +287,13 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
     object ENUM : Serializer<Enum<*>>(19) {
         override fun doWriteValue(value: Enum<*>, out: DataOutput) {
             val cls = value::class
-            cls.qualifiedName!!
-            out.writeClassName(cls)
+            out.writeClass(cls)
             out.writeInt(value.ordinal)
         }
 
         @Suppress("UNCHECKED_CAST")
         override fun readValue(input: DataInput): Value<Enum<*>> {
-            val clsName = input.readUTF()
-            val cls = Class.forName(clsName).kotlin
+            val cls = input.readClass().kotlin
             val ordinal = input.readInt()
             val valuesFun = cls.staticFunctions.find { it.name == "values" && it.parameters.isEmpty() }!!
             valuesFun.isAccessible = true
@@ -302,11 +303,8 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
         }
     }
     object MEMENTO : Serializer<MementoImpl>(MEMENTO_BEGIN_FLAG) {
-
         override fun doWriteValue(value: MementoImpl, out: DataOutput) {
-            val className = value.cls.qualifiedName!!
-            val converted = Reflection.convertNestedClassName(className)
-            out.writeUTF(converted)
+            out.writeClass(value.cls)
             val propertiesSize = value.properties.size
             out.writeShort(propertiesSize)
             for (p in value.properties) {
@@ -316,10 +314,9 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
         }
         @Suppress("UNCHECKED_CAST")
         override fun readValue(input: DataInput): MementoValue {
-            val clsName = input.readUTF()
+            val cls = input.readClass().kotlin
             val propertiesSize = input.readShort().toInt()
             val properties = List(propertiesSize) { read(input) }
-            val cls = Class.forName(clsName).kotlin as KClass<Any>
             val memento = MementoImpl(cls, properties)
             return MementoValue(memento)
         }
@@ -370,41 +367,6 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
             return serializer as Serializer<Any?>
         }
 
-        private val classToValueTypes =
-                mapOf(
-                    Byte::class to BYTE,
-                    Short::class to SHORT,
-                    Char::class to CHAR,
-                    Int::class to INT,
-                    Long::class to LONG,
-                    Float::class to FLOAT,
-                    Double::class to DOUBLE,
-                    String::class to STRING,
-                    Array<Any?>::class to ARRAY,
-                    BooleanArray::class to BOOLEAN_ARRAY,
-                    ByteArray::class to BYTE_ARRAY,
-                    ShortArray::class to SHORT_ARRAY,
-                    IntArray::class to INT_ARRAY,
-                    LongArray::class to LONG_ARRAY,
-                    FloatArray::class to FLOAT_ARRAY,
-                    DoubleArray::class to DOUBLE_ARRAY,
-                    Enum::class to ENUM,
-                    MementoImpl::class to MEMENTO
-                )
-
-        @Suppress("UNCHECKED_CAST")
-        private fun get(value: Any?): Serializer<Any?> {
-            return when (value) {
-                null -> NULL as Serializer<Any?>
-                false -> FALSE as Serializer<Any?>
-                true -> TRUE as Serializer<Any?>
-                else -> {
-                    val cls = value::class
-                    return classToValueTypes[cls] as Serializer<Any?>
-                }
-            }
-        }
-
         private fun read(input: DataInput): Value<Any?> {
             val byteFlag = input.readByte()
             val serializer = getSerializer(byteFlag)
@@ -451,13 +413,18 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
             }
         }
 
-        private fun DataOutput.writeClassName(clazz: Class<*>) {
-            val componentClsName = Reflection.convertNestedClassName(clazz.name)
-            writeUTF(componentClsName)
+        private fun DataOutput.writeClass(clazz: Class<*>) {
+            val clsName = Reflection.convertNestedClassName(clazz.name)
+            writeUTF(clsName)
         }
 
-        private fun DataOutput.writeClassName(kClass: KClass<*>) {
-            writeClassName(kClass.java)
+        private fun DataOutput.writeClass(kClass: KClass<*>) {
+            writeClass(kClass.java)
+        }
+
+        private fun DataInput.readClass(): Class<*> {
+            val clsName = readUTF()
+            return Class.forName(clsName)
         }
     }
 }

@@ -68,29 +68,46 @@ internal class MemorizerImpl : Memorizer {
                 val ex = RememberException(msg)
                 throw ex
             }
-            val value = values[i].value
-            when (value) {
-                is Memento -> {
-                    val remembered = remember(value)
-                    p.set(adapter, remembered)
+            val value = values[i]
+            rememberValueTo(value, p, adapter)
+        }
+    }
+
+    private fun rememberValueTo(value: Value<*>, p: MemorizedProperty, adapter: MementoAdapter<Any>) {
+        when (value) {
+            is Value.MementoValue -> {
+                val remembered = remember(value.value)
+                p.set(adapter, remembered)
+            }
+            is Value.ArrayValue -> {
+                rememberArrayTo(value, p, adapter)
+            }
+            else -> p.set(adapter, value.value)
+        }
+    }
+
+    private fun rememberArrayTo(value: Value.ArrayValue, p: MemorizedProperty, adapter: MementoAdapter<Any>) {
+        val arr = rememberArray(value)
+        p.set(adapter, arr)
+    }
+
+    private fun rememberArray(value: Value.ArrayValue): Any {
+        val componentType = value.value.second
+        val valueArr = value.value.first as Array<Value<*>>
+        val arr = java.lang.reflect.Array.newInstance(componentType, valueArr.size)
+        for ((index, v) in valueArr.withIndex()) {
+            when (v) {
+                is Value.MementoValue -> {
+                    val remembered = remember(v.value)
+                    java.lang.reflect.Array.set(arr, index, remembered)
                 }
-                is Array<*> -> {
-                    value as Array<Value<*>>
-                    val type = p.type as KClass<*>
-                    val componentType = type.java.componentType
-                    val arr = java.lang.reflect.Array.newInstance(componentType, value.size)
-                    for ((index, v) in value.withIndex()) {
-                        if (v is Value.MementoValue) {
-                            val remembered = remember(v.value)
-                            java.lang.reflect.Array.set(arr, index, remembered)
-                        } else {
-                            java.lang.reflect.Array.set(arr, index, v.value)
-                        }
-                    }
-                    p.set(adapter, arr)
+                is Value.ArrayValue -> {
+                    val ar = rememberArray(v)
+                    java.lang.reflect.Array.set(arr, index, ar)
                 }
-                else -> p.set(adapter, value)
+                else -> java.lang.reflect.Array.set(arr, index, v.value)
             }
         }
+        return arr
     }
 }
