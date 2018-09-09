@@ -140,10 +140,8 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
         }
     }
 
-    object ARRAY : Serializer<Array<Any?>>(10) {
-        override fun doWriteValue(value: Array<Any?>, out: DataOutput) {
-            val componentCls = value::class.java.componentType
-            out.writeClassName(componentCls)
+    object ARRAY : Serializer<Array<Value<Any?>>>(10) {
+        override fun doWriteValue(value: Array<Value<Any?>>, out: DataOutput) {
             out.writeShort(value.size)
             for (e in value) {
                 write(out, e)
@@ -152,12 +150,10 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
 
         @Suppress("UNCHECKED_CAST")
         override fun readValue(input: DataInput): ArrayValue {
-            val componentClsName = input.readUTF()
-            val componentCls = Class.forName(componentClsName)
             val size = input.readShort().toInt()
-            val arr = java.lang.reflect.Array.newInstance(componentCls, size) as Array<Any?>
+            val arr = java.lang.reflect.Array.newInstance(Value::class.java, size) as Array<Value<Any?>>
             repeat(size) { i ->
-                arr[i] = read(input).value
+                arr[i] = read(input)
             }
             return ArrayValue(arr)
         }
@@ -415,9 +411,9 @@ internal sealed class Serializer<T>(private val byteFlag: Byte) {
             return serializer.readValue(input)
         }
 
-        private fun write(out: DataOutput, value: Any?) {
-            val serializer = Serializer.get(value)
-            serializer.writeValue(value, out)
+        private fun write(out: DataOutput, value: Value<Any?>) {
+            val serializer = value.serializer
+            serializer.writeValue(value.value, out)
         }
 
         fun readMemento(input: InputStream): MementoImpl {

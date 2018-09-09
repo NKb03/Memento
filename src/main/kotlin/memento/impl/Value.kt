@@ -18,52 +18,52 @@ internal sealed class Value<T> {
     abstract val value: T
     abstract val serializer: Serializer<T>
 
-    data class BooleanValue(override val value: Boolean): Value<Boolean>() {
+    data class BooleanValue(override val value: Boolean) : Value<Boolean>() {
         override val serializer: Serializer<Boolean>
             get() = if (value) Serializer.TRUE else Serializer.FALSE
     }
 
-    data class ByteValue(override val value: Byte): Value<Byte>() {
+    data class ByteValue(override val value: Byte) : Value<Byte>() {
         override val serializer
             get() = Serializer.BYTE
     }
 
-    data class ShortValue(override val value: Short): Value<Short>() {
+    data class ShortValue(override val value: Short) : Value<Short>() {
         override val serializer
             get() = Serializer.SHORT
     }
 
-    data class CharValue(override val value: Char): Value<Char>() {
+    data class CharValue(override val value: Char) : Value<Char>() {
         override val serializer
             get() = Serializer.CHAR
     }
 
-    data class IntValue(override val value: Int): Value<Int>() {
+    data class IntValue(override val value: Int) : Value<Int>() {
         override val serializer
             get() = Serializer.INT
     }
 
-    data class LongValue(override val value: Long): Value<Long>() {
+    data class LongValue(override val value: Long) : Value<Long>() {
         override val serializer
             get() = Serializer.LONG
     }
 
-    data class FloatValue(override val value: Float): Value<Float>() {
+    data class FloatValue(override val value: Float) : Value<Float>() {
         override val serializer
             get() = Serializer.FLOAT
     }
 
-    data class DoubleValue(override val value: Double): Value<Double>() {
+    data class DoubleValue(override val value: Double) : Value<Double>() {
         override val serializer
             get() = Serializer.DOUBLE
     }
 
-    data class StringValue(override val value: String): Value<String>() {
+    data class StringValue(override val value: String) : Value<String>() {
         override val serializer
             get() = Serializer.STRING
     }
 
-    data class ArrayValue(override val value: Array<Any?>): Value<Array<Any?>>() {
+    data class ArrayValue(override val value: Array<Value<Any?>>) : Value<Array<Value<Any?>>>() {
         override val serializer
             get() = Serializer.ARRAY
 
@@ -83,7 +83,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class BooleanArrayValue(override val value: BooleanArray): Value<BooleanArray>() {
+    data class BooleanArrayValue(override val value: BooleanArray) : Value<BooleanArray>() {
         override val serializer
             get() = Serializer.BOOLEAN_ARRAY
 
@@ -103,7 +103,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class ByteArrayValue(override val value: ByteArray): Value<ByteArray>() {
+    data class ByteArrayValue(override val value: ByteArray) : Value<ByteArray>() {
         override val serializer
             get() = Serializer.BYTE_ARRAY
 
@@ -123,7 +123,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class ShortArrayValue(override val value: ShortArray): Value<ShortArray>() {
+    data class ShortArrayValue(override val value: ShortArray) : Value<ShortArray>() {
         override val serializer
             get() = Serializer.SHORT_ARRAY
 
@@ -143,7 +143,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class CharArrayValue(override val value: CharArray): Value<CharArray>() {
+    data class CharArrayValue(override val value: CharArray) : Value<CharArray>() {
         override val serializer
             get() = Serializer.CHAR_ARRAY
 
@@ -163,7 +163,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class IntArrayValue(override val value: IntArray): Value<IntArray>() {
+    data class IntArrayValue(override val value: IntArray) : Value<IntArray>() {
         override val serializer
             get() = Serializer.INT_ARRAY
 
@@ -183,7 +183,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class LongArrayValue(override val value: LongArray): Value<LongArray>() {
+    data class LongArrayValue(override val value: LongArray) : Value<LongArray>() {
         override val serializer
             get() = Serializer.LONG_ARRAY
 
@@ -203,7 +203,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class FloatArrayValue(override val value: FloatArray): Value<FloatArray>() {
+    data class FloatArrayValue(override val value: FloatArray) : Value<FloatArray>() {
         override val serializer
             get() = Serializer.FLOAT_ARRAY
 
@@ -223,7 +223,7 @@ internal sealed class Value<T> {
         }
     }
 
-    data class DoubleArrayValue(override val value: DoubleArray): Value<DoubleArray>() {
+    data class DoubleArrayValue(override val value: DoubleArray) : Value<DoubleArray>() {
         override val serializer
             get() = Serializer.DOUBLE_ARRAY
 
@@ -243,12 +243,12 @@ internal sealed class Value<T> {
         }
     }
 
-    data class EnumValue(override val value: Enum<*>): Value<Enum<*>>() {
+    data class EnumValue(override val value: Enum<*>) : Value<Enum<*>>() {
         override val serializer
             get() = Serializer.ENUM
     }
 
-    data class MementoValue(override val value: MementoImpl): Value<MementoImpl>() {
+    data class MementoValue(override val value: MementoImpl) : Value<MementoImpl>() {
         override val serializer
             get() = Serializer.MEMENTO
     }
@@ -257,35 +257,15 @@ internal sealed class Value<T> {
         override val serializer
             get() = Serializer.NULL
         override val value: Nothing?
-            get() = null 
+            get() = null
     }
 
     companion object {
-        private val typesToValueConstructors = mapOf<KClass<*>, (Any) -> Value<*>>(
-            Boolean::class toConstructor ::BooleanValue,
-            Byte::class toConstructor ::ByteValue,
-            Short::class toConstructor ::ShortValue,
-            Int::class toConstructor ::IntValue,
-            Long::class toConstructor ::LongValue,
-            Float::class toConstructor ::FloatValue,
-            Double::class toConstructor ::DoubleValue,
-            String::class toConstructor ::StringValue,
-            Array<Any?>::class toConstructor ::ArrayValue,
-            BooleanArray::class toConstructor ::BooleanArrayValue,
-            ByteArray::class toConstructor ::ByteArrayValue,
-            ShortArray::class toConstructor ::ShortArrayValue,
-            IntArray::class toConstructor ::IntArrayValue,
-            LongArray::class toConstructor ::LongArrayValue,
-            FloatArray::class toConstructor ::FloatArrayValue,
-            DoubleArray::class toConstructor ::DoubleArrayValue
-        )
-
         @Suppress("UNCHECKED_CAST")
-        private infix fun <T : Any> KClass<T>.toConstructor(constructor: (T) -> Value<T>)
-                : Pair<KClass<*>, (Any) -> Value<*>> {
+        private infix fun <T : Any> KClass<T>.toConstructor(constructor: (T) -> Value<T>): Pair<KClass<*>, (Any) -> Value<*>> {
             return this to { v: Any -> constructor(v as T) }
         }
-        
+
         @Suppress("UNCHECKED_CAST")
         internal fun of(value: Any?, memorizer: Memorizer): Value<*> {
             return when (value) {
@@ -306,10 +286,11 @@ internal sealed class Value<T> {
                 is LongArray -> LongArrayValue(value)
                 is FloatArray -> FloatArrayValue(value)
                 is DoubleArray -> DoubleArrayValue(value)
-                is Array<*> -> ArrayValue(value as Array<Any?>)
+                is Array<*> -> ArrayValue(value.mapToArray { Value.of(it, memorizer) } as Array<Value<Any?>>)
                 is Enum<*> -> EnumValue(value)
                 else -> MementoValue(memorizer.memorize(value) as MementoImpl)
             }
         }
+
     }
 }

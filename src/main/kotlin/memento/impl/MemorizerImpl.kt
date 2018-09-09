@@ -17,10 +17,10 @@ package memento.impl
 import memento.*
 import kotlin.reflect.KClass
 
+@Suppress("UNCHECKED_CAST")
 internal class MemorizerImpl : Memorizer {
     override val adapterRegistrar = MementoAdapterRegistrarImpl()
 
-    @Suppress("UNCHECKED_CAST")
     override fun memorize(obj: Any): Memento {
         val cls = obj::class
         if (cls.qualifiedName == null) {
@@ -34,7 +34,7 @@ internal class MemorizerImpl : Memorizer {
             val v = p.get(adapter)
             Value.of(v, this) as Value<Any?>
         }
-        @Suppress("UNCHECKED_CAST") val casted = cls as KClass<Any>
+        val casted = cls as KClass<Any>
         return MementoImpl(casted, values)
     }
 
@@ -69,11 +69,27 @@ internal class MemorizerImpl : Memorizer {
                 throw ex
             }
             val value = values[i].value
-            if (value is Memento) {
-                val remembered = remember(value)
-                p.set(adapter, remembered)
-            } else {
-                p.set(adapter, value)
+            when (value) {
+                is Memento -> {
+                    val remembered = remember(value)
+                    p.set(adapter, remembered)
+                }
+                is Array<*> -> {
+                    value as Array<Value<*>>
+                    val type = p.type as KClass<*>
+                    val componentType = type.java.componentType
+                    val arr = java.lang.reflect.Array.newInstance(componentType, value.size)
+                    for ((index, v) in value.withIndex()) {
+                        if (v is Value.MementoValue) {
+                            val remembered = remember(v.value)
+                            java.lang.reflect.Array.set(arr, index, remembered)
+                        } else {
+                            java.lang.reflect.Array.set(arr, index, v.value)
+                        }
+                    }
+                    p.set(adapter, arr)
+                }
+                else -> p.set(adapter, value)
             }
         }
     }

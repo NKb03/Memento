@@ -14,3 +14,6 @@
 
 package memento.impl
 
+internal inline fun <T, reified F> Array<T>.mapToArray(f: (T) -> F): Array<F> {
+    return Array(size) { index -> f(get(index)) }
+}
