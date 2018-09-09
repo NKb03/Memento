@@ -16,12 +16,9 @@ package memento.profile
 
 import memento.Memorizer
 import memento.dummys.Country
-import nikok.kprofile.api.Tag
 import nikok.kprofile.api.profile
 
-object DEFAULT: Tag("default")
-
-fun profileListMemorization() = profile("list memorization", DEFAULT) {
+fun profileListMemorization() = profile("list memorization", currentTags) {
     withMemorizer(Memorizer.newInstance()) {
         memorizing("a small list of ints") { List(10) { it } }
         memorizing("a big list of ints") { List(1000) { it } }

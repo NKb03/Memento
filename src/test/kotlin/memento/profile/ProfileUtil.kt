@@ -17,13 +17,12 @@ package memento.profile
 import memento.Memento
 import memento.Memorizer
 import nikok.kprofile.api.ProfileBody
-import java.nio.file.Files
 import java.nio.file.Files.*
 import java.nio.file.Path
 
 fun ProfileBody.memorizing(memorizer: Memorizer, description: String, creator: () -> Any) {
     val instance = creator.invoke()
-    profile("memorizing $description") {
+    profile(description) {
         memorizer.memorize(instance)
     }
 }
