@@ -20,13 +20,14 @@ import com.natpryce.hamkrest.throws
 import memento.*
 import memento.dummys.Country
 import memento.dummys.CountryAdapter
-import memento.dummys.DateMementoAdapter
+import memento.impl.adapters.DateMementoAdapter
 import memento.dummys.TestMemorable
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.*
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
@@ -87,6 +88,6 @@ internal object SerializerSpec: Spek({
                 { mem.writeTo(fos); Unit } shouldMatch throws<MementoSerializationException>()
             }
         }
-        path.toFile().delete()
+        Files.delete(path)
     }
 })

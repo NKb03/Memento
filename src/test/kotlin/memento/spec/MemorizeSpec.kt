@@ -19,6 +19,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.natpryce.hamkrest.throws
 import memento.*
 import memento.dummys.*
+import memento.impl.adapters.DateMementoAdapter
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
@@ -30,7 +31,6 @@ internal object MemorizeSpec: Spek({
     given("a memorizer") {
         val memorizer = Memorizer.newInstance()
         memorizer.adapterRegistrar.registerAdapter<Country, CountryAdapter>()
-        memorizer.adapterRegistrar.registerAdapter<Date, DateMementoAdapter>()
         val testMemorable = TestMemorable.construct()
         lateinit var memory: Memento
         describe("memorizing") {
