@@ -15,17 +15,18 @@
 package memento.impl
 
 import memento.*
+import memento.impl.adapters.DateMementoAdapter
 import memento.impl.adapters.ListMementoAdapter
 import memento.impl.adapters.MapMementoAdapter
 import memento.impl.adapters.SetMementoAdapter
-import kotlin.collections.HashMap
-import kotlin.reflect.*
+import java.util.*
+import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 
 @Suppress("UNCHECKED_CAST")
 internal class MementoAdapterRegistrarImpl : MementoAdapterRegistrar {
     private val userSpecified: MutableMap<KClass<in Any>, Pair<(Any) -> MementoAdapter<Any>, () -> MementoAdapter<Any>>>
-            = HashMap()
+            = mutableMapOf()
 
     init {
         registerDefaultAdapters()
@@ -35,6 +36,7 @@ internal class MementoAdapterRegistrarImpl : MementoAdapterRegistrar {
         registerAdapter<List<*>, ListMementoAdapter>()
         registerAdapter<Set<*>, SetMementoAdapter>()
         registerAdapter<Map<*, *>, MapMementoAdapter>()
+        registerAdapter<Date, DateMementoAdapter>()
     }
 
 
