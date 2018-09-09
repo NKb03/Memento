@@ -20,7 +20,7 @@ import java.nio.file.Path
 
 internal class MemorizerContext(private val memorizer: Memorizer) {
     fun ProfileBody.memorizing(description: String, creator: () -> Any) {
-        memorizing(memorizer, description, creator)
+        memorizing(memorizer, "memorizing $description", creator)
     }
 
     fun ProfileBody.serializing(description: String, path: Path, objectCreator: () -> Any) {

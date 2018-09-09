@@ -16,13 +16,65 @@ package memento.profile
 
 import memento.Memorizer
 import memento.dummys.Country
+import memento.dummys.CountryAdapter
+import memento.dummys.TestMemorable
 import nikok.kprofile.api.profile
+import memento.registerAdapter
 
 fun profileListMemorization() = profile("list memorization", currentTags) {
-    withMemorizer(Memorizer.newInstance()) {
-        memorizing("a small list of ints") { List(10) { it } }
-        memorizing("a big list of ints") { List(1000) { it } }
-        memorizing("a small list of average sized objects") { List(10) { Country("HELLO WORLD") } }
+    withMemorizer(Memorizer.newInstance().apply {
+        adapterRegistrar.registerAdapter<Country, CountryAdapter>()
+    }) {
+        memorizing("a small list of ints") {
+            List(10) { it }
+        }
+        memorizing("a average sized list of ints") {
+            List(100) { it }
+        }
+        memorizing("a big list of ints") {
+            List(10_000) { it }
+        }
+        memorizing("a small list of average sized objects") {
+            List(10) { Country("HELLO WORLD") }
+        }
+        memorizing("a average sized list of average sized objects") {
+            List(1000) { Country("HELLO WORLD") }
+        }
+        memorizing("a big list of average sized objects") {
+            List(10_000) { Country("HELLO WORLD") }
+        }
+        memorizing("a big list of big objects") {
+            List(10_000) { TestMemorable.construct() }
+        }
+        memorizing("a small list of small lists of ints") {
+            List(10) { x ->
+                List(10) { y ->
+                    x * y
+                }
+            }
+        }
+        memorizing("a big list of small lists of ints") {
+            List(1000) { x ->
+                List(10) { y ->
+                    x * y
+                }
+            }
+        }
+        memorizing("a big list of big lists of ints") {
+            List(1000) { x ->
+                List(1000) { y ->
+                    x * y
+                }
+            }
+        }
+        memorizing("a small list of big lists of ints") {
+            List(10) { x ->
+                List(1000) { y ->
+                    x * y
+                }
+            }
+        }
+
     }
 }
 
