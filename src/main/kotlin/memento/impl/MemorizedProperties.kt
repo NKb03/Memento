@@ -51,17 +51,22 @@ internal interface MemorizedProperty {
     fun set(receiver: Any, value: Any?)
 
     fun get(receiver: Any): Any?
+
+    val type: KClassifier
 }
 
-private class FieldMemorizedProperty(val property: KProperty1<*, *>, private val field: Field): MemorizedProperty {
+private class FieldMemorizedProperty(val property: KProperty1<*, *>, private val javaField: Field): MemorizedProperty {
+    override val type: KClassifier
+        get() = javaField.type.kotlin
+
     override fun set(receiver: Any, value: Any?) {
-        field.isAccessible = true
-        field.set(receiver, value)
+        javaField.isAccessible = true
+        javaField.set(receiver, value)
     }
 
     override fun get(receiver: Any): Any? {
-        field.isAccessible = true
-        return field.get(receiver)
+        javaField.isAccessible = true
+        return javaField.get(receiver)
     }
 
     override fun toString(): String {
@@ -70,6 +75,9 @@ private class FieldMemorizedProperty(val property: KProperty1<*, *>, private val
 }
 
 private class KPropertyMemorizedProperty(val property: KMutableProperty1<Any, Any?>): MemorizedProperty {
+    override val type: KClassifier
+        get() = property.returnType.classifier!!
+
     override fun set(receiver: Any, value: Any?) {
         property.isAccessible = true
         property.set(receiver, value)
