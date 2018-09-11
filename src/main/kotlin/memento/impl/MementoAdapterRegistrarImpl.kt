@@ -22,6 +22,7 @@ import memento.impl.adapters.SetMementoAdapter
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
+import kotlin.reflect.jvm.isAccessible
 
 @Suppress("UNCHECKED_CAST")
 internal class MementoAdapterRegistrarImpl : MementoAdapterRegistrar {
@@ -93,6 +94,7 @@ internal class MementoAdapterRegistrarImpl : MementoAdapterRegistrar {
             val ex = MementoAdapterConfigurationException(msg)
             throw ex
         }
+        createAdapterFun.isAccessible = true
         return createAdapterFun.call(companionInstance) as MementoAdapter<T>
     }
 
