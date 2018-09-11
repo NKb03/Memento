@@ -12,7 +12,7 @@
  *@author Nikolaus Knop
  */
 
-package memento.dummys
+package memento.impl.adapters
 
 import memento.MementoAdapter
 import java.util.*
