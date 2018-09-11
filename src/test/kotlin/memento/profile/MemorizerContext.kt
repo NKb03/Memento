@@ -16,14 +16,9 @@ package memento.profile
 
 import memento.Memorizer
 import nikok.kprofile.api.ProfileBody
-import java.nio.file.Path
 
 internal class MemorizerContext(private val memorizer: Memorizer) {
     fun ProfileBody.memorizing(description: String, creator: () -> Any) {
-        memorizing(memorizer, "memorizing $description", creator)
-    }
-
-    fun ProfileBody.serializing(description: String, path: Path, objectCreator: () -> Any) {
-        serializing(description, path, memorizer, objectCreator)
+        memorizing(memorizer, description, creator)
     }
 }
