@@ -20,6 +20,8 @@ import memento.dummys.CountryAdapter
 import memento.dummys.TestMemorable
 import nikok.kprofile.api.profile
 import memento.registerAdapter
+import nikok.kprofile.api.markdown
+import nikok.kprofile.api.view
 
 fun profileListMemorization() = profile("list memorization", currentTags) {
     withMemorizer(Memorizer.newInstance().apply {
@@ -75,7 +77,39 @@ fun profileListMemorization() = profile("list memorization", currentTags) {
             }
         }
 
+        memorizing("a small list of small lists of objects") {
+            List(10) { _ ->
+                List(10) { _ ->
+                    Country("Madagaskar")
+                }
+            }
+        }
+        memorizing("a big list of small lists of objects") {
+            List(1000) { _ ->
+                List(10) { _ ->
+                    Country("Madagaskar")
+                }
+            }
+        }
+        memorizing("a big list of big lists of objects") {
+            List(1000) { _ ->
+                List(1000) { _ ->
+                    Country("Madagaskar")
+                }
+            }
+        }
+        memorizing("a small list of big lists of objects") {
+            List(10) { _ ->
+                List(1000) { _ ->
+                    Country("Madagaskar")
+                }
+            }
+        }
     }
+}
+
+fun viewListMemorizationResults() {
+    markdown.view("list memorization", currentTags, results.resolve("list memorization.html"))
 }
 
 fun main(args: Array<String>) {
