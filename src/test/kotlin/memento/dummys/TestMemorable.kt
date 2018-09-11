@@ -12,6 +12,7 @@ package memento.dummys
 
 import memento.DoNotMemorize
 import memento.SelfMemorable
+import java.io.Serializable
 import java.util.*
 
 private enum class E { A, B, C }
@@ -44,7 +45,7 @@ class TestMemorable private constructor(
     private val x: Array<String> = emptyArray(),
     @DoNotMemorize private val dnm: Int = 0,
     private val enum: E = E.A
-): SelfMemorable {
+): SelfMemorable, Serializable {
 
     companion object {
         fun createAdapter() = TestMemorable()
@@ -114,7 +115,6 @@ class TestMemorable private constructor(
         if (w != other.w) return false
         if (!Arrays.equals(x, other.x)) return false
         if (enum != other.enum) return false
-        if (dnm == other.dnm) return false //Yeah really
         return true
     }
 
@@ -145,5 +145,37 @@ class TestMemorable private constructor(
         result = 31 * result + x.hashCode()
         result = 31 * result + dnm
         return result
+    }
+
+    override fun toString(): String {
+        return buildString {
+            appendln("Test Memorable: ")
+            appendln("a: $a")
+            appendln("b: $b")
+            appendln("c: $c")
+            appendln("d: $d")
+            appendln("e: $e")
+            appendln("f: $f")
+            appendln("g: $g")
+            appendln("h: $h")
+            appendln("i: ${i.toList()}")
+            appendln("j: ${j.toList()}")
+            appendln("k: ${k.toList()}")
+            appendln("l: ${l.toList()}")
+            appendln("m: ${m.toList()}")
+            appendln("n: ${n.toList()}")
+            appendln("o: ${o.toList()}")
+            appendln("p: $p")
+            appendln("q: $q")
+            appendln("r: $r")
+            appendln("s: $s")
+            appendln("u: $u")
+            appendln("v: $v")
+            appendln("w: $w")
+            appendln("x: ${x.toList()}")
+            appendln("string: $string")
+            appendln("dnm: $dnm")
+            appendln("enum: $enum")
+        }
     }
 }
