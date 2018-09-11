@@ -14,4 +14,6 @@
 
 package memento.dummys
 
-data class Country(var name: String = "")
+import java.io.Serializable
+
+data class Country(var name: String = ""): Serializable
