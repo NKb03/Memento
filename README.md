@@ -38,7 +38,7 @@ class UserView(val name: String): HBox(), Memorable {
     
     override val mementoAdapter get() = UserViewMementoAdapter(this)
     companion object {
-        fun createMementoAdapter() = UserViewMementoAdapter(UserView(""))
+        fun createAdapter() = UserViewMementoAdapter(UserView(""))
     }
 }
 ```
@@ -89,8 +89,4 @@ Sometimes it is tedious to write a special memento adapter
 for your class if all you want is to memorize all properties.
 Then you can let your class implement `SelfMemorable`
 
-data class Record(val id: String, val name: String, val age: Int): SelfMemorabld
-
-
-
-memementos
+data class Record(val id: String, val name: String, val age: Int): SelfMemorable
